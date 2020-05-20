@@ -10,15 +10,14 @@ Along those lines, here's some prior art:
 http://www.tkcs-collins.com/truman/monopoly/monopoly.shtml
 
 
-# TODO: until_space_type -- evaluate this as a string
+# TODO: maybe instead of all these classmethods, instances?
 """
 from abc import abstractmethod, ABC
 from itertools import cycle
-from pprint import pprint
 from random import shuffle, choice
 from typing import Type, NewType, Tuple, cast
 
-from exceptions import TooManyPlayers, NotEnough, DidntFind, Argument
+from exceptions import TooManyPlayers, NotEnough, DidntFind, Argument, NoOwner
 
 Doubles = NewType("Doubles", bool)
 
@@ -27,12 +26,15 @@ BACKUP_LANGUAGE = "English"
 
 
 class Space:
-    pass
+    def __repr__(self):
+        if hasattr(self, "_name"):
+            return self._name
+        return self.__name__
 
 
 class NothingHappensWhenYouLandOnItSpace(Space):
     @classmethod
-    def action(self, player: "Player"):
+    def action(self, player: "Player", last_roll):
         pass
 
 
@@ -52,7 +54,7 @@ class TaxSpace(Space):
     amount = None
 
     @classmethod
-    def action(cls, player):
+    def action(cls, player, last_roll):
         player.pay("Bank", cls.amount)
 
 
@@ -68,7 +70,7 @@ class IncomeTax(TaxSpace):
 
 class GoToJail(Space):
     @classmethod
-    def action(cls, player):
+    def action(cls, player, last_roll):
         player.go_to_jail()
 
 
@@ -76,10 +78,11 @@ class CardSpace(Space):
     deck = None
 
     @classmethod
-    def action(cls, player):
+    def action(cls, player, last_roll):
+        # for lazy loading to avoid circular imports (?)
         deck = eval(cls.deck)
         card = deck.get_card()
-        return card.action(player)
+        return card.action(player, last_roll)
 
 
 class CommunityChest(CardSpace):
@@ -97,9 +100,12 @@ class Card(ABC):
     cost = None
     keep = False
 
-    @abstractmethod
-    def action(self, player: "Player"):
+    @classmethod
+    def action(self, player: "Player", last_roll):
         raise NotImplementedError
+
+    def __repr__(self):
+        return self.text
 
 
 class ElectedPresidentCard(Card):
@@ -108,7 +114,8 @@ class ElectedPresidentCard(Card):
         "français": "Vous avez été elu president du conseil d'administration. Versez M50 à chaque joueur."
     }
 
-    def action(self, player):
+    @classmethod
+    def action(cls, player, last_roll):
         for other_player in Game.game.active_players:
             if other_player != player:
                 player.pay(other_player, 50)
@@ -120,7 +127,8 @@ class GetOutOfJailFreeCard(Card):
         "qu'elle soit utilisée ou vendue. "
     }
 
-    def action(self, player: "Player"):
+    @classmethod
+    def action(cls, player: "Player", last_roll):
         player.get_out_of_jail_free_card = True
 
 
@@ -128,8 +136,9 @@ class AdvanceCard(Card):
     mandatory_action = True
     kwarg = {}
 
-    def action(self, player):
-        player.advance(**self.kwarg)
+    @classmethod
+    def action(cls, player, last_roll):
+        player.advance(**cls.kwarg)
 
 
 class GoToJailCard(AdvanceCard):
@@ -168,7 +177,8 @@ class BuildingAndLoanMaturesCard(Card):
         "English": "Your building and loan matures. Collect M150.",
     }
 
-    def action(self, player):
+    @classmethod
+    def action(self, player, last_roll):
         Bank.pay(player, 150)
 
 
@@ -176,7 +186,8 @@ class SpeedingCard(Card):
     mandatory_action = True
     text = {"français": "Amende pour excès de vitesse. Payez M15."}
 
-    def action(self, player):
+    @classmethod
+    def action(cls, player, last_roll):
         player.pay(Bank, 15)
 
 
@@ -207,7 +218,8 @@ class ChanceDeck(Deck):
 
 
 class CommunityChestDeck(Deck):
-    deck = []
+    # TODO: remove these and add the readl ones!
+    deck = [GoToJailCard, SpeedingCard]
 
 
 def shuffle_decks():
@@ -220,15 +232,28 @@ class Decision:
 
 
 class BuyDecision(Decision):
-    def __init__(self, property: Type["Property"], player: "Player"):
+    def __init__(self, property: "Property", player: "Player"):
         pass
 
 
 class Property(Space):
     mortgaged = False
+    owner = None
 
     def __init__(self, _name):
         self._name = _name
+
+    @classmethod
+    def action(cls, player: "Player", last_roll=None):
+        if not cls.owner:
+            return BuyDecision(cls, player)
+        if cls.mortgaged:
+            return
+        return player.pay(cls.owner, cls.calculate_rent(last_roll=last_roll))
+
+    def calculate_rent(self, last_roll):
+        if not self.owner:
+            raise NoOwner
 
 
 class Utility(Property):
@@ -236,6 +261,13 @@ class Utility(Property):
     rent = {1: lambda dice_total: dice_total * 4, 2: lambda dice_total: dice_total * 10}
     mortgage_cost = 75
     unmortgage_cost = 83
+    type = "utility"
+
+    def calculate_rent(self, last_roll: int):
+        super().calculate_rent(last_roll)
+        if not last_roll:
+            return 10 * Player.roll_the_dice()[0]
+        return self.rent[self.owner.owns_x_of_type(self)](last_roll)
 
 
 class Railroad(Property):
@@ -243,11 +275,14 @@ class Railroad(Property):
     rent = ({1: 25, 2: 50, 3: 100, 4: 200},)
     mortgage_cost = 100
     unmortgage_cost = 110
+    type = "railroad"
+
+    def calculate_rent(self, last_roll=None):
+        super().calculate_rent()
+        return self.rent[self.owner.owns_x_of_type(self)]
 
 
 class BuildableProperty(Property):
-    owner = None
-
     def __init__(
         self,
         _name,
@@ -263,16 +298,10 @@ class BuildableProperty(Property):
         self.rent = rent
         self.house_and_hotel_cost = house_and_hotel_cost
         self.color = color
+        self.type = color
         self.mortgage_cost = mortgage_cost
         self.unmortgage_cost = unmortgage_cost
-
-    def action(self, player: "Player"):
-        # TODO: implement on Property, then extend here
-        if self.owner:
-            if self.mortgaged:
-                return
-            player.pay(self.owner, self.calculate_rent())
-        return BuyDecision(self, player)
+        self.buildings = None
 
     def mortgage(self, player: "Player"):
         Bank.pay(player, self.mortgage_cost)
@@ -282,14 +311,15 @@ class BuildableProperty(Property):
         player.pay(Bank, self.unmortgage_cost)
         self.mortgaged = False
 
-    def calculate_rent(self):
-        raise NotImplementedError
-        # if not self.owner:
-        #     raise NoOwner
-        # if self.buildings:
-        #     key = self.buildings
-        # else:
-        #     if self.owner.owns_all_type(self.)
+    def calculate_rent(self, last_roll=None):
+        super().calculate_rent()
+        if self.buildings:
+            key = self.buildings
+        elif self.owner.owns_all_type(self.type):
+            key = "monopoly"
+        else:
+            key = 0
+        return self.rent[key]
 
 
 class Board:
@@ -604,25 +634,28 @@ def get_space_index(name):
 
 
 class EconomicActor:
-    money = 0
-
-    @classmethod
-    def pay(cls, actor: Type["EconomicActor"], amount: int):
-        if amount > cls.money:
-            print(cls)
-            print("actor:", actor)
-            print("cls.money:", cls.money)
-            raise NotEnough
-        if isinstance(actor, str):
-            actor = eval(actor)
-        cls.money -= amount
-        actor.money += amount
+    pass
 
 
 class Bank(EconomicActor):
     money = 20_580
     NUM_HOUSES = 32
     NUM_HOTELS = 12
+
+    @classmethod
+    def pay(cls, actor: "EconomicActor", amount: int):
+        if isinstance(actor, str):
+            actor = eval(actor)
+        if amount > cls.money:
+            print("cls:", cls)
+            print("cls.money:", cls.money)
+            print(cls)
+            print("actor:", actor)
+            print("actor.money:", actor.money)
+            print(Game.games[0]._players)
+            raise NotEnough
+        cls.money -= amount
+        actor.money += amount
 
     @classmethod
     def get_building(cls, type_, quantity):
@@ -636,15 +669,20 @@ class Bank(EconomicActor):
 
 
 def get_index_of_next_space_of_type(current_space_index, until_space_type):
+    print(until_space_type)
+    print(type(until_space_type))
     space_indices_to_traverse = list(
         range(current_space_index + 1, Board.NUM_SPACES)
     ) + list(range(current_space_index))
     for index in space_indices_to_traverse:
+        if isinstance(until_space_type, str):
+            until_space_type = eval(until_space_type)
         if isinstance(Board.spaces[index], until_space_type):
             return index
         else:
             # for debugging TODO: delete
             print(type(Board.spaces[index]))
+            pass
     else:
         # for debugging TODO: delete
         raise DidntFind
@@ -669,17 +707,36 @@ class Player(EconomicActor):
     get_out_of_jail_free_card = False
     go_again = False
     current_space_index = get_space_index("Go")
+    money = 0
 
     def __init__(self, name):
         self.name = name
         Bank.pay(self, 1_500)
 
+    def __repr__(self):
+        return f"<Player name='{self.name}' money={self.money}"
+
+    def pay(cls, actor: "EconomicActor", amount: int):
+        if isinstance(actor, str):
+            actor = eval(actor)
+        if amount > cls.money:
+            print("cls:", cls)
+            print("cls.money:", cls.money)
+            print(cls)
+            print("actor:", actor)
+            print("actor.money:", actor.money)
+            print(Game.games[0]._players)
+            raise NotEnough
+        cls.money -= amount
+        actor.money += amount
+
     def take_a_turn(self):
+        print(f"{self.name} taking a turn...")
         if self.in_jail:
             return GetOutOfJailDecision(self)
         num_spaces, doubles = self.roll_the_dice()
         self.go_again = doubles
-        self.advance(num_spaces)
+        self.advance(num_spaces, just_rolled=True)
 
     @staticmethod
     def roll_the_dice() -> Tuple[int, Doubles]:
@@ -690,7 +747,12 @@ class Player(EconomicActor):
         return total, cast(Doubles, False)
 
     def advance(
-        self, num_spaces=None, space_index=None, until_space_type=None, pass_go=True
+        self,
+        num_spaces=None,
+        space_index=None,
+        until_space_type=None,
+        pass_go=True,
+        just_rolled=True,
     ):
         new_space_index = None
         check_args(num_spaces, space_index, until_space_type)
@@ -701,7 +763,9 @@ class Player(EconomicActor):
                 space_index = get_space_index(space_index)
             new_space_index = space_index
         elif until_space_type:
-            new_space_index = get_index_of_next_space_of_type(until_space_type)
+            new_space_index = get_index_of_next_space_of_type(
+                self.current_space_index, until_space_type
+            )
 
         if pass_go and new_space_index >= Board.NUM_SPACES - 1:
             print("You passed go! Here's 200 Monopoly Dollars")
@@ -712,12 +776,15 @@ class Player(EconomicActor):
             self.money += 200
 
         self.current_space_index = new_space_index
-        self.do_action_of_current_space()
+        if just_rolled:
+            last_roll = num_spaces
+        else:
+            last_roll = None
+        self.do_action_of_current_space(last_roll=last_roll)
 
-    def do_action_of_current_space(self):
+    def do_action_of_current_space(self, last_roll=None):
         space = Board.spaces[self.current_space_index]
-        print(space)
-        space.action(self)
+        space.action(self, last_roll=last_roll)
 
     def go_to_jail(self):
         self.in_jail = True
@@ -725,10 +792,10 @@ class Player(EconomicActor):
 
 
 class Game:
-    game = None
+    games = []
 
     def __init__(self, *player_names):
-        self.game = self
+        self.games.append(self)
         if len(player_names) > 8:
             raise TooManyPlayers
         self._players = [Player(player_name) for player_name in player_names]
@@ -747,6 +814,7 @@ class Game:
             if not current_player.bankrupt:
                 current_player.take_a_turn()
             while current_player.go_again:
+                print(f"{current_player} got doubles, going again:")
                 current_player.take_a_turn()
         self.end()
 

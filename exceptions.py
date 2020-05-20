@@ -12,3 +12,7 @@ class Argument(Exception):
 
 class DidntFind(Exception):
     pass
+
+
+class NoOwner(Exception):
+    pass
