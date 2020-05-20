@@ -71,7 +71,8 @@ class IncomeTax(TaxSpace):
 class GoToJail(Space):
     @classmethod
     def action(cls, player, last_roll):
-        player.go_to_jail()
+        # player.go_to_jail()
+        pass
 
 
 class CardSpace(Space):
@@ -647,12 +648,6 @@ class Bank(EconomicActor):
         if isinstance(actor, str):
             actor = eval(actor)
         if amount > cls.money:
-            print("cls:", cls)
-            print("cls.money:", cls.money)
-            print(cls)
-            print("actor:", actor)
-            print("actor.money:", actor.money)
-            print(Game.games[0]._players)
             raise NotEnough
         cls.money -= amount
         actor.money += amount
@@ -672,8 +667,6 @@ def get_index_of_next_space_of_type(current_space_index, until_space_type):
     space_indices_to_traverse = list(
         range(current_space_index + 1, Board.NUM_SPACES)
     ) + list(range(current_space_index))
-    print("looking for space type", until_space_type)
-    print(space_indices_to_traverse)
     for index in space_indices_to_traverse:
         if isinstance(until_space_type, str):
             until_space_type = eval(until_space_type)
@@ -681,13 +674,7 @@ def get_index_of_next_space_of_type(current_space_index, until_space_type):
             Board.spaces[index], until_space_type
         ):
             return index
-        else:
-            # for debugging TODO: delete
-            # print(type(Board.spaces[index]))
-            pass
-    else:
-        # for debugging TODO: delete
-        raise DidntFind
+    raise DidntFind
 
 
 def check_args(num_spaces, space_index, until_space_type):
@@ -727,14 +714,14 @@ class Player(EconomicActor):
         actor.money += amount
 
     def take_a_turn(self):
-        print(f"{self.name} taking a turn...")
         if self.in_jail:
-            print(f"{self} in jail")
             return GetOutOfJailDecision(self)
         num_spaces, doubles = self.roll_the_dice()
-        print("doubles", doubles)
-        self.go_again = doubles
-        print("num_spaces", num_spaces)
+        if doubles:
+            self.go_again = True
+        else:
+            self.go_again = False
+
         self.advance(num_spaces, just_rolled=True)
 
     @staticmethod
@@ -767,11 +754,9 @@ class Player(EconomicActor):
             )
 
         if pass_go and new_space_index >= Board.NUM_SPACES - 1:
-            print(f"{self} passed go! Here's 200 Monopoly Dollars")
             self.money += 200
             new_space_index = new_space_index - Board.NUM_SPACES
         elif pass_go and self.current_space_index > new_space_index:
-            print(f"{self} passed go! Here's 200 Monopoly Dollars")
             self.money += 200
 
         self.current_space_index = new_space_index
@@ -813,7 +798,6 @@ class Game:
             if not current_player.bankrupt:
                 current_player.take_a_turn()
             while current_player.go_again:
-                print(f"{current_player} got doubles, going again:")
                 current_player.take_a_turn()
         self.end()
 
