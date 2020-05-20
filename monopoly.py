@@ -11,11 +11,14 @@ http://www.tkcs-collins.com/truman/monopoly/monopoly.shtml
 
 
 # TODO: maybe instead of all these classmethods, instances?
+# TODO: something more graceful than Game.games[0]
 """
 from abc import abstractmethod, ABC
+from collections import defaultdict
 from itertools import cycle
+from pprint import pprint
 from random import shuffle, choice
-from typing import Type, NewType, Tuple, cast
+from typing import Type, NewType, Tuple, cast, List
 
 from exceptions import TooManyPlayers, NotEnough, DidntFind, Argument, NoOwner
 
@@ -228,29 +231,41 @@ def shuffle_decks():
         deck.shuffle()
 
 
+def buy_decision(property: Type["Property"], player: "Player"):
+    if property.cost > player.assets:
+        print(f"{player} doesn't have enough to buy {property}.")
+    if Game.games[0].buy_decision_algorithm(property, player):
+        player.buy(property)
+
+
 class Decision:
     pass
-
-
-class BuyDecision(Decision):
-    def __init__(self, property: "Property", player: "Player"):
-        pass
 
 
 class Property(Space):
     mortgaged = False
     owner = None
+    cost = 0
+    instances = []
+    type = None
 
     def __init__(self, _name):
         self._name = _name
+        self.instances.append(self)
 
     @classmethod
-    def action(cls, player: "Player", last_roll=None):
-        if not cls.owner:
-            return BuyDecision(cls, player)
-        if cls.mortgaged:
+    def instances_by_type(cls):
+        ibt = defaultdict(list)
+        for i in cls.instances:
+            print(i)
+            ibt[i.type].append(i)
+
+    def action(self, player: "Player", last_roll=None):
+        if not self.owner:
+            return buy_decision(self, player)
+        if self.mortgaged:
             return
-        return player.pay(cls.owner, cls.calculate_rent(last_roll=last_roll))
+        return player.pay(self.owner, self.calculate_rent(last_roll=last_roll))
 
     def calculate_rent(self, last_roll):
         if not self.owner:
@@ -313,7 +328,7 @@ class BuildableProperty(Property):
         self.mortgaged = False
 
     def calculate_rent(self, last_roll=None):
-        super().calculate_rent()
+        super().calculate_rent(last_roll)
         if self.buildings:
             key = self.buildings
         elif self.owner.owns_all_type(self.type):
@@ -324,7 +339,6 @@ class BuildableProperty(Property):
 
 
 class Board:
-
     spaces = [
         Go,
         BuildableProperty(
@@ -333,7 +347,6 @@ class Board:
             color="brown",
             rent={0: 2, "monopoly": 4, 1: 10, 2: 30, 3: 90, 4: 160, "hotel": 250},
             house_and_hotel_cost=50,
-            # TODO
             mortgage_cost=30,
             unmortgage_cost=33,
         ),
@@ -705,13 +718,17 @@ class Player(EconomicActor):
     def __repr__(self):
         return f"<Player name='{self.name}' money={self.money}"
 
-    def pay(cls, actor: "EconomicActor", amount: int):
+    def pay(cls, actor: Type["EconomicActor"], amount: int):
         if isinstance(actor, str):
             actor = eval(actor)
         if amount > cls.money:
             raise NotEnough
         cls.money -= amount
         actor.money += amount
+
+    def buy(self, property: Type["Property"], from_=Bank, cost=None):
+        property.owner = self
+        self.pay(from_, cost or property.cost)
 
     def take_a_turn(self):
         if self.in_jail:
@@ -724,6 +741,20 @@ class Player(EconomicActor):
 
         self.advance(num_spaces, just_rolled=True)
 
+    def owns_x_of_type(self, type_):
+        return len(self.properties_by_type.get(type_))
+
+    def owns_all_type(self, type_):
+        num_of_type = len(Property.instances_by_type()[type])
+        return self.owns_x_of_type(type_) == num_of_type
+
+    @property
+    def properties_by_type(self):
+        pbt = defaultdict(list)
+        for property in self.properties:
+            pbt[property.type].append(property)
+        return pbt
+
     @staticmethod
     def roll_the_dice() -> Tuple[int, Doubles]:
         die_one, die_two = choice(range(1, 7)), choice(range(1, 7))
@@ -731,6 +762,20 @@ class Player(EconomicActor):
         if die_one == die_two:
             return total, cast(Doubles, True)
         return total, cast(Doubles, False)
+
+    @property
+    def assets(self):
+        return self.money + self.total_property_mortgage_value
+
+    @property
+    def total_property_mortgage_value(self):
+        return sum(property.mortgage_cost for property in self.properties)
+
+    @property
+    def properties(self) -> List["Property"]:
+        # TODO: create an `instances` class attribute on `Property` that keeps track of them all
+        #  then iterate through those instances to see which ones have an owner equal to `self`
+        return [p for p in Property.instances if p.owner == self]
 
     def advance(
         self,
@@ -778,7 +823,11 @@ class Player(EconomicActor):
 class Game:
     games = []
 
-    def __init__(self, *player_names):
+    def __init__(self, *player_names, buy_decision_algorithm=None):
+        def return_true(_, __):
+            return True
+
+        self.buy_decision_algorithm = buy_decision_algorithm or return_true
         self.games.append(self)
         if len(player_names) > 8:
             raise TooManyPlayers
@@ -805,4 +854,4 @@ class Game:
         print(self.active_players[0], "is the winner!")
 
 
-game = Game("Bot", "Ro")
+game = Game("Bot", "Ro", buy_decision_algorithm=None)
