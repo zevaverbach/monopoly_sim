@@ -1,8 +1,16 @@
-class TooManyPlayers(Exception):
+class TooMany(Exception):
+    pass
+
+
+class TooManyPlayers(TooMany):
     pass
 
 
 class NotEnough(Exception):
+    pass
+
+
+class MustBeEqualAmounts(Exception):
     pass
 
 
@@ -15,4 +23,12 @@ class DidntFind(Exception):
 
 
 class NoOwner(Exception):
+    pass
+
+
+class CantMortgage(Exception):
+    pass
+
+
+class CantBuyBuildings(Exception):
     pass

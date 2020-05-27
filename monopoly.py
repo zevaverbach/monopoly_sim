@@ -21,12 +21,14 @@ from random import shuffle, choice
 from time import sleep
 from typing import Type, NewType, Tuple, cast, List
 
-from exceptions import TooManyPlayers, NotEnough, DidntFind, Argument, NoOwner
+from exceptions import TooManyPlayers, NotEnough, DidntFind, Argument, NoOwner, CantMortgage, \
+    CantBuyBuildings, TooMany, MustBeEqualAmounts
 
 Doubles = NewType("Doubles", bool)
 
 LANGUAGE = "français"
 BACKUP_LANGUAGE = "English"
+BUILDING_TYPES = "house", "hotel"
 
 
 class Space:
@@ -196,6 +198,17 @@ class SpeedingCard(Card):
         player.pay(Bank, 15)
 
 
+class RepairPropertyCard(Card):
+    text = {
+        "français": "Vous faites des réparations sur toutes vos propriétés: Versez M25"
+        " pour chaque maison M100 pour Chque hôtel que vous possédez"
+    }
+
+    @classmethod
+    def action(cls, player, _):
+
+
+
 class Deck:
     deck = None
 
@@ -219,6 +232,7 @@ class ChanceDeck(Deck):
         GoToBernPlaceFederaleCard,
         GoToJailCard,
         SpeedingCard,
+        GoToClosestRailroadCard,
     ]
 
 
@@ -257,6 +271,18 @@ class Property(Space):
         if hasattr(self, "_name"):
             return self._name
         return str(self.__class__)
+
+    @classmethod
+    def get_num_of_type(cls, type):
+        return len(cls.instances_by_type()[type])
+
+    @property
+    def num_of_type(self):
+        return self.get_num_of_type(self.type)
+
+    @property
+    def properties_of_type(self):
+        return self.instances_by_type()[self.type]
 
     @classmethod
     def instances_by_type(cls):
@@ -331,9 +357,47 @@ class BuildableProperty(Property):
         self.type = color
         self.mortgage_cost = mortgage_cost
         self.unmortgage_cost = unmortgage_cost
-        self.buildings = None
+        self.buildings = {"house": 0, "hotel": 0}
+
+    def buy_buildings(self, building_type, quantity=None):
+        """
+        TODO: Each property within a group must be no more than one house level away from all other
+         properties in that group. For example, if you own the Orange group, you can’t put a
+         second house on New York Ave until you have a first house on St. James and Tennessee.
+         Then you can’t put a third house on any property until you have two houses on
+         all properties.
+        """
+        if not self.owner.owns_all_type(self.type):
+            raise CantBuyBuildings
+        quantity = quantity or 1
+
+        if building_type == "hotel" and self.buildings["house"] != 4:
+            raise NotEnough
+        elif building_type == "house" and (self.buildings["house"] + quantity) > 4:
+            raise TooMany
+
+        total_buildings = quantity * self.num_of_type
+        cost = self.house_and_hotel_cost * total_buildings
+        self.owner.check_funds(cost)
+        Bank.get_buildings(building_type, total_buildings)
+        self.owner.pay(Bank, cost)
+
+        for property_ in self.properties_of_type:
+            if building_type == "hotel":
+                property_.buildings["house"] = 0
+                property_.buildings["hotel"] = 1
+            else:
+                property_.buildings["house"] += quantity
+
+    def sell_buildings(self, building_type, quantity):
+        if not self.buildings[building_type]:
+            raise NotEnough
+        if quantity % self.num_of_type:
+            raise MustBeEqualAmounts
 
     def mortgage(self, player: "Player"):
+        if self.buildings:
+            raise CantMortgage
         Bank.pay(player, self.mortgage_cost)
         self.mortgaged = True
 
@@ -682,14 +746,31 @@ class Bank(EconomicActor):
         actor.money += amount
 
     @classmethod
-    def get_building(cls, type_, quantity):
-        if type_ not in ("house", "hotel"):
-            raise Argument
-        to_check = cls.NUM_HOUSES if type_ == "house" else cls.NUM_HOTELS
+    def get_buildings(cls, type_, quantity=None):
+        cls.check_building_type(type_)
+        to_check = cls.get_building_store(type_)
+        if type_ == "hotel":
+            quantity = 1
+
         if to_check < quantity:
-            raise (f"Not enough {type_}s!")
+            raise NotEnough(f"Not enough {type_}s!")
         else:
             to_check -= quantity
+
+    @classmethod
+    def put_building(cls, type_, quantity):
+        cls.check_building_type(type_)
+        store = cls.get_building_store(type_)
+        store += quantity
+
+    @staticmethod
+    def check_building_type(type_):
+        if type_ not in BUILDING_TYPES:
+            raise TypeError
+
+    @classmethod
+    def get_building_store(cls, type_):
+        return cls.NUM_HOUSES if type_ == "house" else cls.NUM_HOTELS
 
 
 def get_index_of_next_space_of_type(current_space_index, until_space_type):
@@ -735,11 +816,14 @@ class Player(EconomicActor):
         if isinstance(actor, str):
             actor = eval(actor)
         print(actor, amount, self.money)
-        if amount > self.money:
-            raise NotEnough
+        self.check_funds(amount)
         print(f"{self} is paying {actor} ${amount}")
         self.money -= amount
         actor.money += amount
+
+    def check_funds(self, amount):
+        if amount > self.money:
+            raise NotEnough
 
     def buy(self, property_: "Property", from_=Bank, cost=None):
         try:
@@ -769,8 +853,7 @@ class Player(EconomicActor):
         return len(properties_of_this_type)
 
     def owns_all_type(self, type_):
-        num_of_type = len(Property.instances_by_type()[type])
-        return self.owns_x_of_type(type_) == num_of_type
+        return self.owns_x_of_type(type_) == Property.get_num_of_type(type)
 
     @property
     def properties_by_type(self):
