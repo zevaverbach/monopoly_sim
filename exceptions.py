@@ -10,6 +10,10 @@ class NotEnough(Exception):
     pass
 
 
+class NotEnoughPlayers(NotEnough):
+    pass
+
+
 class MustBeEqualAmounts(Exception):
     pass
 

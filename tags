@@ -1,0 +1,316 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ALL_MONEY	monopoly.py	/^ALL_MONEY = 20_580$/;"	v
+AdvanceCard	monopoly.py	/^class AdvanceCard(Card):$/;"	c
+AdvanceThreeSpacesCard	monopoly.py	/^class AdvanceThreeSpacesCard(AdvanceCard):$/;"	c
+Argument	exceptions.py	/^class Argument(Exception):$/;"	c
+BACKUP_LANGUAGE	monopoly.py	/^BACKUP_LANGUAGE = "English"$/;"	v
+BUILDABLE_PROPERTY_COLORS	monopoly.py	/^BUILDABLE_PROPERTY_COLORS = ($/;"	v
+BUILDING_TYPES	monopoly.py	/^BUILDING_TYPES = "house", "hotel"$/;"	v
+Bank	monopoly.py	/^class Bank(EconomicActor):$/;"	c
+Board	monopoly.py	/^class Board:$/;"	c
+BuildableProperty	monopoly.py	/^class BuildableProperty(Property):$/;"	c
+BuildingAndLoanMaturesCard	monopoly.py	/^class BuildingAndLoanMaturesCard(Card):$/;"	c
+BuyDecision	buy_decision_algos.py	/^class BuyDecision(ABC):$/;"	c
+BuyEverything	buy_decision_algos.py	/^class BuyEverything(BuyDecision):$/;"	c
+BuyIfDontHaveTwoPartialMonopoliesOfOtherColors	buy_decision_algos.py	/^class BuyIfDontHaveTwoPartialMonopoliesOfOtherColors(BuyDecision):$/;"	c
+BuyIfHaveThreeTimesPrice	buy_decision_algos.py	/^class BuyIfHaveThreeTimesPrice(BuyDecision):$/;"	c
+BuyIfNoOneOwnsTypeAndIsOfTheOneTypeOwned	buy_decision_algos.py	/^class BuyIfNoOneOwnsTypeAndIsOfTheOneTypeOwned(BuyDecision):$/;"	c
+BuyIfOwnFewerThanFivePropertiesOrHaveOneOfThisColor	buy_decision_algos.py	/^class BuyIfOwnFewerThanFivePropertiesOrHaveOneOfThisColor(BuyDecision):$/;"	c
+CantBuyBuildings	exceptions.py	/^class CantBuyBuildings(Exception):$/;"	c
+CantMortgage	exceptions.py	/^class CantMortgage(Exception):$/;"	c
+Card	monopoly.py	/^class Card(ABC):$/;"	c
+CardSpace	monopoly.py	/^class CardSpace(Space):$/;"	c
+Chance	monopoly.py	/^class Chance(CardSpace):$/;"	c
+ChanceDeck	monopoly.py	/^class ChanceDeck(Deck):$/;"	c
+CommunityChest	monopoly.py	/^class CommunityChest(CardSpace):$/;"	c
+CommunityChestDeck	monopoly.py	/^class CommunityChestDeck(Deck):$/;"	c
+Decision	monopoly.py	/^class Decision:$/;"	c
+Deck	monopoly.py	/^class Deck:$/;"	c
+DidntFind	exceptions.py	/^class DidntFind(Exception):$/;"	c
+Doubles	monopoly.py	/^Doubles = NewType("Doubles", bool)$/;"	v
+EconomicActor	monopoly.py	/^class EconomicActor:$/;"	c
+ElectedPresidentCard	monopoly.py	/^class ElectedPresidentCard(Card):$/;"	c
+FreeParking	monopoly.py	/^class FreeParking(NothingHappensWhenYouLandOnItSpace):$/;"	c
+Game	monopoly.py	/^class Game:$/;"	c
+GetOutOfJailDecision	monopoly.py	/^class GetOutOfJailDecision(Decision):$/;"	c
+GetOutOfJailFreeCard	monopoly.py	/^class GetOutOfJailFreeCard(Card):$/;"	c
+Go	monopoly.py	/^class Go(NothingHappensWhenYouLandOnItSpace):$/;"	c
+GoToBernPlaceFederaleCard	monopoly.py	/^class GoToBernPlaceFederaleCard(AdvanceCard):$/;"	c
+GoToClosestRailroadCard	monopoly.py	/^class GoToClosestRailroadCard(AdvanceCard):$/;"	c
+GoToJail	monopoly.py	/^class GoToJail(Space):$/;"	c
+GoToJailCard	monopoly.py	/^class GoToJailCard(AdvanceCard):$/;"	c
+IncomeTax	monopoly.py	/^class IncomeTax(TaxSpace):$/;"	c
+Jail	monopoly.py	/^class Jail(NothingHappensWhenYouLandOnItSpace):$/;"	c
+LANGUAGE	monopoly.py	/^LANGUAGE = "français"$/;"	v
+LuxuryTax	monopoly.py	/^class LuxuryTax(TaxSpace):$/;"	c
+MAX_ROUNDS	monopoly.py	/^MAX_ROUNDS = 5000$/;"	v
+Monopoly	monopoly.py	/^class Monopoly:$/;"	c
+MustBeEqualAmounts	exceptions.py	/^class MustBeEqualAmounts(Exception):$/;"	c
+NUM_HOTELS	monopoly.py	/^    NUM_HOTELS = NUM_HOTELS$/;"	v	class:Bank
+NUM_HOTELS	monopoly.py	/^NUM_HOTELS = 12$/;"	v
+NUM_HOUSES	monopoly.py	/^    NUM_HOUSES = NUM_HOUSES$/;"	v	class:Bank
+NUM_HOUSES	monopoly.py	/^NUM_HOUSES = 32$/;"	v
+NUM_SPACES	monopoly.py	/^    NUM_SPACES = len(spaces)$/;"	v	class:Board
+NoOwner	exceptions.py	/^class NoOwner(Exception):$/;"	c
+NotEnough	exceptions.py	/^class NotEnough(Exception):$/;"	c
+NotEnoughPlayers	exceptions.py	/^class NotEnoughPlayers(NotEnough):$/;"	c
+NothingHappensWhenYouLandOnItSpace	monopoly.py	/^class NothingHappensWhenYouLandOnItSpace(Space):$/;"	c
+Player	monopoly.py	/^class Player(EconomicActor):$/;"	c
+Property	monopoly.py	/^class Property(Space):$/;"	c
+Railroad	monopoly.py	/^class Railroad(Property):$/;"	c
+RepairPropertyCard	monopoly.py	/^class RepairPropertyCard(Card):$/;"	c
+SPACES_DICT	monopoly.py	/^    SPACES_DICT = {}$/;"	v	class:Board
+Space	monopoly.py	/^class Space:$/;"	c
+SpeedingCard	monopoly.py	/^class SpeedingCard(Card):$/;"	c
+TaxSpace	monopoly.py	/^class TaxSpace(Space):$/;"	c
+TooMany	exceptions.py	/^class TooMany(Exception):$/;"	c
+TooManyPlayers	exceptions.py	/^class TooManyPlayers(TooMany):$/;"	c
+Utility	monopoly.py	/^class Utility(Property):$/;"	c
+__call__	buy_decision_algos.py	/^    def __call__(self, _, __):$/;"	m	class:BuyEverything	file:
+__call__	buy_decision_algos.py	/^    def __call__(self, property_, player):$/;"	m	class:BuyIfNoOneOwnsTypeAndIsOfTheOneTypeOwned	file:
+__call__	buy_decision_algos.py	/^    def __call__(self, property_, player):$/;"	m	class:BuyIfOwnFewerThanFivePropertiesOrHaveOneOfThisColor	file:
+__call__	buy_decision_algos.py	/^    def __call__(self, property_: "Property", player: "Player"):$/;"	m	class:BuyDecision	file:
+__call__	buy_decision_algos.py	/^    def __call__(self, property_: "Property", player: "Player"):$/;"	m	class:BuyIfDontHaveTwoPartialMonopoliesOfOtherColors	file:
+__call__	buy_decision_algos.py	/^    def __call__(self, property_: "Property", player: "Player"):$/;"	m	class:BuyIfHaveThreeTimesPrice	file:
+__init__	monopoly.py	/^    def __init__($/;"	m	class:BuildableProperty
+__init__	monopoly.py	/^    def __init__(self):$/;"	m	class:Player
+__init__	monopoly.py	/^    def __init__(self, _name):$/;"	m	class:Property
+__init__	monopoly.py	/^    def __init__(self, num_players, buy_decision_algorithm, slow_down=False):$/;"	m	class:Game
+__init__	monopoly.py	/^    def __init__(self, player: "Player"):$/;"	m	class:GetOutOfJailDecision
+__init__	monopoly.py	/^    def __init__(self, property_: "BuildableProperty"):$/;"	m	class:Monopoly
+__repr__	monopoly.py	/^    def __repr__(self):$/;"	m	class:Card	file:
+__repr__	monopoly.py	/^    def __repr__(self):$/;"	m	class:Monopoly	file:
+__repr__	monopoly.py	/^    def __repr__(self):$/;"	m	class:Property	file:
+__repr__	monopoly.py	/^    def __repr__(self):$/;"	m	class:Space	file:
+__str__	monopoly.py	/^    def __str__(self):$/;"	m	class:Player	file:
+_name	monopoly.py	/^            _name={"français": "Aarau Rathausplatz"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Berne Place Fédérale"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Berne Spitalgasse"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Bienne Rue De Nidau"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Bâle Freie Strasse"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Bâle Steinen-Vorstadt"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Coire Kornplatz"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Fribourg Avenue de la Gare"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Genève Rue de la Croix-D'Or"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "La Chaux-de-Fonds Avenue Louis-Robert"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Lausanne Place St. François"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Lausanne Rue de Bourg"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Lucerne Weggisgasse"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Lugano Via Nassa"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Neuchâtel Place Pury"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Schaffhouse Vordergasse"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Soleure Hauptgasse"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "St-Gall Markplatz"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Thoune Hauptgasse"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Winterthour Bahnhofplatz"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Zurich Paradeplatz"},$/;"	v	class:Board
+_name	monopoly.py	/^            _name={"français": "Zurich Rennweg"},$/;"	v	class:Board
+_name	monopoly.py	/^    _name = {"français": "Chance", "deutsch": "Chance", "English": "Chance"}$/;"	v	class:Chance
+_name	monopoly.py	/^    _name = {"français": "Chancellerie", "deutsch": "Kanzlei"}$/;"	v	class:CommunityChest
+_name	monopoly.py	/^    _name = {"français": "Impôt Supplémentaire", "deutsch": "Nachsteuer"}$/;"	v	class:LuxuryTax
+action	monopoly.py	/^    def action(cls, player, _):$/;"	m	class:AdvanceCard
+action	monopoly.py	/^    def action(cls, player, _):$/;"	m	class:CardSpace
+action	monopoly.py	/^    def action(cls, player, _):$/;"	m	class:ElectedPresidentCard
+action	monopoly.py	/^    def action(cls, player, _):$/;"	m	class:GoToJail
+action	monopoly.py	/^    def action(cls, player, _):$/;"	m	class:RepairPropertyCard
+action	monopoly.py	/^    def action(cls, player, _):$/;"	m	class:SpeedingCard
+action	monopoly.py	/^    def action(cls, player, _):$/;"	m	class:TaxSpace
+action	monopoly.py	/^    def action(cls, player: "Player", _):$/;"	m	class:GetOutOfJailFreeCard
+action	monopoly.py	/^    def action(self, player, _):$/;"	m	class:BuildingAndLoanMaturesCard
+action	monopoly.py	/^    def action(self, player: "Player", _):$/;"	m	class:Card
+action	monopoly.py	/^    def action(self, player: "Player", _):$/;"	m	class:NothingHappensWhenYouLandOnItSpace
+action	monopoly.py	/^    def action(self, player: "Player", last_roll=None):$/;"	m	class:Property
+active_players	monopoly.py	/^    def active_players(self):$/;"	m	class:Game
+advance	monopoly.py	/^    def advance($/;"	m	class:Player
+amount	monopoly.py	/^    amount = 100$/;"	v	class:IncomeTax
+amount	monopoly.py	/^    amount = 75$/;"	v	class:LuxuryTax
+amount	monopoly.py	/^    amount = None$/;"	v	class:TaxSpace
+assets	monopoly.py	/^    def assets(self):$/;"	m	class:Player
+bankrupt	monopoly.py	/^    bankrupt = False$/;"	v	class:Player
+buildable_properties	monopoly.py	/^    def buildable_properties(self) -> List[BuildableProperty]:$/;"	m	class:Player
+buy	monopoly.py	/^    def buy(self, property_: "Property", from_=Bank, cost=None):$/;"	m	class:Player
+buy_building	monopoly.py	/^    def buy_building(self, building_type):$/;"	m	class:BuildableProperty
+buy_buildings_if_possible	monopoly.py	/^    def buy_buildings_if_possible(self):$/;"	m	class:Player
+buy_decision	monopoly.py	/^def buy_decision(property: "Property", player: "Player"):$/;"	f
+calculate_rent	monopoly.py	/^    def calculate_rent(self, _):$/;"	m	class:BuildableProperty
+calculate_rent	monopoly.py	/^    def calculate_rent(self, _):$/;"	m	class:Property
+calculate_rent	monopoly.py	/^    def calculate_rent(self, _):$/;"	m	class:Railroad
+calculate_rent	monopoly.py	/^    def calculate_rent(self, last_roll: int):$/;"	m	class:Utility
+can_afford	monopoly.py	/^    def can_afford(self, cost):$/;"	m	class:Player
+check_args	monopoly.py	/^def check_args(num_spaces, space_index, until_space_type):$/;"	f
+check_building_type	monopoly.py	/^    def check_building_type(type_):$/;"	m	class:Bank
+check_funds	monopoly.py	/^    def check_funds(self, amount):$/;"	m	class:Player
+color	monopoly.py	/^            color="brown",$/;"	v	class:Board
+color	monopoly.py	/^            color="dark blue",$/;"	v	class:Board
+color	monopoly.py	/^            color="green",$/;"	v	class:Board
+color	monopoly.py	/^            color="light blue",$/;"	v	class:Board
+color	monopoly.py	/^            color="orange",$/;"	v	class:Board
+color	monopoly.py	/^            color="pink",$/;"	v	class:Board
+color	monopoly.py	/^            color="red",$/;"	v	class:Board
+color	monopoly.py	/^            color="yellow",$/;"	v	class:Board
+cost	monopoly.py	/^            cost=100,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=120,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=140,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=160,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=180,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=200,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=220,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=240,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=260,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=280,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=300,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=320,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=350,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=400,$/;"	v	class:Board
+cost	monopoly.py	/^            cost=60,$/;"	v	class:Board
+cost	monopoly.py	/^    cost = 0$/;"	v	class:Property
+cost	monopoly.py	/^    cost = 200$/;"	v	class:Railroad
+cost	monopoly.py	/^    cost = 200$/;"	v	class:Utility
+cost	monopoly.py	/^    cost = None$/;"	v	class:Card
+current_space_index	monopoly.py	/^    current_space_index = get_space_index("Go")$/;"	v	class:Player
+deck	monopoly.py	/^    deck = "ChanceDeck"$/;"	v	class:Chance
+deck	monopoly.py	/^    deck = "CommunityChestDeck"$/;"	v	class:CommunityChest
+deck	monopoly.py	/^    deck = None$/;"	v	class:CardSpace
+deck	monopoly.py	/^    deck = None$/;"	v	class:Deck
+deck	monopoly.py	/^    deck = [$/;"	v	class:ChanceDeck
+deck	monopoly.py	/^    deck = [GoToJailCard, SpeedingCard]$/;"	v	class:CommunityChestDeck
+do_action_of_current_space	monopoly.py	/^    def do_action_of_current_space(self, last_roll=None):$/;"	m	class:Player
+end	monopoly.py	/^    def end(self):$/;"	m	class:Game
+game	simulate.py	/^                game = Game(num_players_, buy_decision_algorithm=buy_decision_algorithm, slow_down=slow_down)$/;"	v
+games	monopoly.py	/^    games = []$/;"	v	class:Game
+get_building	monopoly.py	/^    def get_building(cls, type_):$/;"	m	class:Bank
+get_building_store	monopoly.py	/^    def get_building_store(cls, type_):$/;"	m	class:Bank
+get_card	monopoly.py	/^    def get_card(cls):$/;"	m	class:Deck
+get_index_of_next_space_of_type	monopoly.py	/^def get_index_of_next_space_of_type(current_space_index, until_space_type):$/;"	f
+get_num_of_type	monopoly.py	/^    def get_num_of_type(cls, type):$/;"	m	class:Property
+get_out_of_jail_free_card	monopoly.py	/^    get_out_of_jail_free_card = False$/;"	v	class:Player
+get_property_with_least_number_of_houses	monopoly.py	/^def get_property_with_least_number_of_houses(properties):$/;"	f
+get_property_with_no_hotels	monopoly.py	/^def get_property_with_no_hotels(properties):$/;"	f
+get_results	simulate.py	/^def get_results(results, game, attrs_to_get):$/;"	f
+get_rounds_played_per_player	monopoly.py	/^    def get_rounds_played_per_player(self):$/;"	m	class:Game
+get_space_index	monopoly.py	/^def get_space_index(name):$/;"	f
+go_again	monopoly.py	/^    go_again = False$/;"	v	class:Player
+go_to_jail	monopoly.py	/^    def go_to_jail(self):$/;"	m	class:Player
+house_and_hotel_cost	monopoly.py	/^            house_and_hotel_cost=100,$/;"	v	class:Board
+house_and_hotel_cost	monopoly.py	/^            house_and_hotel_cost=150,$/;"	v	class:Board
+house_and_hotel_cost	monopoly.py	/^            house_and_hotel_cost=200,$/;"	v	class:Board
+house_and_hotel_cost	monopoly.py	/^            house_and_hotel_cost=50,$/;"	v	class:Board
+in_jail	monopoly.py	/^    in_jail = False$/;"	v	class:Player
+instances	monopoly.py	/^    instances = []$/;"	v	class:Property
+instances_by_type	monopoly.py	/^    def instances_by_type(cls):$/;"	m	class:Property
+keep	monopoly.py	/^    keep = False$/;"	v	class:Card
+kwarg	monopoly.py	/^    kwarg = {"num_spaces": 3}$/;"	v	class:AdvanceThreeSpacesCard
+kwarg	monopoly.py	/^    kwarg = {"space_index": "Berne Place Fédérale"}$/;"	v	class:GoToBernPlaceFederaleCard
+kwarg	monopoly.py	/^    kwarg = {"until_space_type": "Jail", "pass_go": False}$/;"	v	class:GoToJailCard
+kwarg	monopoly.py	/^    kwarg = {"until_space_type": "Railroad"}$/;"	v	class:GoToClosestRailroadCard
+kwarg	monopoly.py	/^    kwarg = {}$/;"	v	class:AdvanceCard
+mandatory_action	monopoly.py	/^    mandatory_action = False$/;"	v	class:Card
+mandatory_action	monopoly.py	/^    mandatory_action = True$/;"	v	class:AdvanceCard
+mandatory_action	monopoly.py	/^    mandatory_action = True$/;"	v	class:AdvanceThreeSpacesCard
+mandatory_action	monopoly.py	/^    mandatory_action = True$/;"	v	class:BuildingAndLoanMaturesCard
+mandatory_action	monopoly.py	/^    mandatory_action = True$/;"	v	class:ElectedPresidentCard
+mandatory_action	monopoly.py	/^    mandatory_action = True$/;"	v	class:GoToBernPlaceFederaleCard
+mandatory_action	monopoly.py	/^    mandatory_action = True$/;"	v	class:SpeedingCard
+money	monopoly.py	/^    money = 0$/;"	v	class:Player
+money	monopoly.py	/^    money = ALL_MONEY$/;"	v	class:Bank
+monopolies	monopoly.py	/^    monopolies = []$/;"	v	class:Player
+mortgage	monopoly.py	/^    def mortgage(self, player: "Player"):$/;"	m	class:BuildableProperty
+mortgage_cost	monopoly.py	/^            mortgage_cost=100,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=110,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=120,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=130,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=140,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=150,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=160,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=175,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=200,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=30,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=50,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=60,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=70,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=80,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^            mortgage_cost=90,$/;"	v	class:Board
+mortgage_cost	monopoly.py	/^    mortgage_cost = 100$/;"	v	class:Railroad
+mortgage_cost	monopoly.py	/^    mortgage_cost = 75$/;"	v	class:Utility
+mortgaged	monopoly.py	/^    mortgaged = False$/;"	v	class:Property
+next_building	monopoly.py	/^    def next_building(self) -> Tuple[Optional[str], Optional["BuildableProperty"]]:$/;"	m	class:Monopoly
+num_hotels	monopoly.py	/^    def num_hotels(self):$/;"	m	class:Monopoly
+num_houses	monopoly.py	/^    def num_houses(self):$/;"	m	class:Monopoly
+num_of_type	monopoly.py	/^    def num_of_type(self):$/;"	m	class:Property
+owner	monopoly.py	/^    owner = None$/;"	v	class:Property
+owns_all_type	monopoly.py	/^    def owns_all_type(self, type_):$/;"	m	class:Player
+owns_x_of_type	monopoly.py	/^    def owns_x_of_type(self, type_):$/;"	m	class:Player
+passed_go_times	monopoly.py	/^    passed_go_times = 0$/;"	v	class:Player
+pay	monopoly.py	/^    def pay(cls, actor: "EconomicActor", amount: int):$/;"	m	class:Bank
+pay	monopoly.py	/^    def pay(self, actor: Type["EconomicActor"], amount: int):$/;"	m	class:Player
+play_x_games	simulate.py	/^def play_x_games($/;"	f
+print_results	simulate.py	/^def print_results(results, num_players):$/;"	f
+properties	monopoly.py	/^    def properties(self) -> List["Property"]:$/;"	m	class:Player
+properties_by_type	monopoly.py	/^    def properties_by_type(self):$/;"	m	class:Player
+properties_of_type	monopoly.py	/^    def properties_of_type(self):$/;"	m	class:Property
+put_building	monopoly.py	/^    def put_building(cls, type_, quantity):$/;"	m	class:Bank
+rent	monopoly.py	/^            rent={$/;"	v	class:Board
+rent	monopoly.py	/^            rent={0: 10, "monopoly": 20, 1: 50, 2: 150, 3: 450, 4: 625, "hotel": 750},$/;"	v	class:Board
+rent	monopoly.py	/^            rent={0: 12, "monopoly": 24, 1: 60, 2: 180, 3: 500, 4: 700, "hotel": 900},$/;"	v	class:Board
+rent	monopoly.py	/^            rent={0: 14, "monopoly": 28, 1: 70, 2: 200, 3: 550, 4: 750, "hotel": 950},$/;"	v	class:Board
+rent	monopoly.py	/^            rent={0: 16, "monopoly": 32, 1: 80, 2: 220, 3: 600, 4: 800, "hotel": 1_000},$/;"	v	class:Board
+rent	monopoly.py	/^            rent={0: 18, "monopoly": 39, 1: 90, 2: 250, 3: 700, 4: 875, "hotel": 1_050},$/;"	v	class:Board
+rent	monopoly.py	/^            rent={0: 2, "monopoly": 4, 1: 10, 2: 30, 3: 90, 4: 160, "hotel": 250},$/;"	v	class:Board
+rent	monopoly.py	/^            rent={0: 4, "monopoly": 8, 1: 20, 2: 60, 3: 180, 4: 320, "hotel": 450},$/;"	v	class:Board
+rent	monopoly.py	/^            rent={0: 6, "monopoly": 12, 1: 30, 2: 90, 3: 270, 4: 400, "hotel": 550},$/;"	v	class:Board
+rent	monopoly.py	/^            rent={0: 8, "monopoly": 16, 1: 30, 2: 100, 3: 300, 4: 400, "hotel": 600},$/;"	v	class:Board
+rent	monopoly.py	/^    rent = {$/;"	v	class:Utility
+rent	monopoly.py	/^    rent = {1: 25, 2: 50, 3: 100, 4: 200}$/;"	v	class:Railroad
+reset	monopoly.py	/^    def reset(cls):$/;"	m	class:Bank
+reset	monopoly.py	/^    def reset(cls):$/;"	m	class:Property
+results	simulate.py	/^        results = defaultdict(list)$/;"	v
+roll_the_dice	monopoly.py	/^    def roll_the_dice() -> Tuple[int, Doubles]:$/;"	m	class:Player
+rounds	monopoly.py	/^    rounds = 0$/;"	v	class:Game
+sell_buildings	monopoly.py	/^    def sell_buildings(self, building_type, quantity):$/;"	m	class:BuildableProperty
+shuffle	monopoly.py	/^    def shuffle(cls):$/;"	m	class:Deck
+shuffle_decks	monopoly.py	/^def shuffle_decks():$/;"	f
+space_name	monopoly.py	/^            space_name = space.__name__$/;"	v	class:Board
+space_name	monopoly.py	/^            space_name = space._name$/;"	v	class:Board
+space_name	monopoly.py	/^            space_name = space._name.get(LANGUAGE) or space._name.get(BACKUP_LANGUAGE)$/;"	v	class:Board
+spaces	monopoly.py	/^    spaces = [$/;"	v	class:Board
+start	monopoly.py	/^    def start(self):$/;"	m	class:Game
+take_a_turn	monopoly.py	/^    def take_a_turn(self):$/;"	m	class:Player
+test_bank_reset	tests/test_monopoly.py	/^def test_bank_reset():$/;"	f
+test_property_reset	tests/test_monopoly.py	/^def test_property_reset():$/;"	f
+test_roll_the_dice	tests/test_monopoly.py	/^def test_roll_the_dice():$/;"	f
+text	monopoly.py	/^    text = {"français": "Amende pour excès de vitesse. Payez M15."}$/;"	v	class:SpeedingCard
+text	monopoly.py	/^    text = {"français": "Avancez jusqu'à le chemin de fer le plus proche."}$/;"	v	class:GoToClosestRailroadCard
+text	monopoly.py	/^    text = {"français": "Reculez de trois cases."}$/;"	v	class:AdvanceThreeSpacesCard
+text	monopoly.py	/^    text = {$/;"	v	class:BuildingAndLoanMaturesCard
+text	monopoly.py	/^    text = {$/;"	v	class:ElectedPresidentCard
+text	monopoly.py	/^    text = {$/;"	v	class:GetOutOfJailFreeCard
+text	monopoly.py	/^    text = {$/;"	v	class:GoToBernPlaceFederaleCard
+text	monopoly.py	/^    text = {$/;"	v	class:GoToJailCard
+text	monopoly.py	/^    text = {$/;"	v	class:RepairPropertyCard
+total_property_mortgage_value	monopoly.py	/^    def total_property_mortgage_value(self):$/;"	m	class:Player
+type	monopoly.py	/^    type = "railroad"$/;"	v	class:Railroad
+type	monopoly.py	/^    type = "utility"$/;"	v	class:Utility
+type	monopoly.py	/^    type = None$/;"	v	class:Property
+un_mortgage	monopoly.py	/^    def un_mortgage(self, player: "Player"):$/;"	m	class:BuildableProperty
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=110,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=121,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=132,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=143,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=154,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=165,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=176,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=193,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=220,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=33,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=55,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=66,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=77,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=88,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^            unmortgage_cost=99,$/;"	v	class:Board
+unmortgage_cost	monopoly.py	/^    unmortgage_cost = 110$/;"	v	class:Railroad
+unmortgage_cost	monopoly.py	/^    unmortgage_cost = 83$/;"	v	class:Utility

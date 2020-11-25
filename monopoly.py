@@ -4,31 +4,63 @@ Purpose:
 1) To simulate games of Monopoly in order to determine the best strategy
 2) To play Monopoly on a computer
 
-
 Along those lines, here's some prior art:
 
 http://www.tkcs-collins.com/truman/monopoly/monopoly.shtml
+https://blog.ed.ted.com/2017/12/01/heres-how-to-win-at-monopoly-according-to-math-experts/
 
 
-# TODO: maybe instead of all these classmethods, instances?
-# TODO: something more graceful than Game.games[0]
-# TODO: store LAST_ROLL in a global constant instead of passing it around to all the `action` methods
+TODO: maybe instead of all these classmethods, instances?
+TODO: something more graceful than Game.games[0]
+TODO: store LAST_ROLL in a global constant instead of passing it around to all the `action` methods
+TODO: write some tests
+TODO: break up into modules
+TODO: add auctions
+TODO: print the reason someone decided to/not to buy a property
+TODO: print whether someone is in jail or just visiting
+TODO: don't allow buying of multiple houses/a hotel on a property if the other properties in the same color don't have any
 """
-from abc import abstractmethod, ABC
+from abc import ABC
 from collections import defaultdict
 from itertools import cycle
-from random import shuffle, choice
+from random import choice, shuffle
 from time import sleep
-from typing import Type, NewType, Tuple, cast, List
+from typing import cast, List, NewType, Optional, Tuple, Type
 
-from exceptions import TooManyPlayers, NotEnough, DidntFind, Argument, NoOwner, CantMortgage, \
-    CantBuyBuildings, TooMany, MustBeEqualAmounts
+from exceptions import (
+    Argument,
+    CantBuyBuildings,
+    CantMortgage,
+    DidntFind,
+    MustBeEqualAmounts,
+    NoOwner,
+    NotEnough,
+    TooMany,
+    TooManyPlayers,
+    NotEnoughPlayers,
+)
+
+ALL_MONEY = 20_580
+NUM_HOUSES = 32
+NUM_HOTELS = 12
 
 Doubles = NewType("Doubles", bool)
 
 LANGUAGE = "français"
 BACKUP_LANGUAGE = "English"
 BUILDING_TYPES = "house", "hotel"
+MAX_ROUNDS = 5000
+
+BUILDABLE_PROPERTY_COLORS = (
+    "yellow",
+    "red",
+    "light blue",
+    "brown",
+    "pink",
+    "orange",
+    "green",
+    "dark blue",
+)
 
 
 class Space:
@@ -45,6 +77,10 @@ class NothingHappensWhenYouLandOnItSpace(Space):
 
 
 class Go(NothingHappensWhenYouLandOnItSpace):
+    """
+    should this really be a NothingHappensWhenYouLandOnItSpace?
+    since you get to collect $200
+    """
     pass
 
 
@@ -61,6 +97,7 @@ class TaxSpace(Space):
 
     @classmethod
     def action(cls, player, _):
+        print(f"{player} pays bank {cls.amount} ({cls.__name__})")
         player.pay("Bank", cls.amount)
 
 
@@ -123,8 +160,10 @@ class ElectedPresidentCard(Card):
 
     @classmethod
     def action(cls, player, _):
+        print("{cls.__name__}")
         for other_player in Game.games[0].active_players:
             if other_player != player:
+                print(f"{player} is paying {other_player} 50")
                 player.pay(other_player, 50)
 
 
@@ -136,6 +175,7 @@ class GetOutOfJailFreeCard(Card):
 
     @classmethod
     def action(cls, player: "Player", _):
+        print(f"{player} got a get out of jail free card")
         player.get_out_of_jail_free_card = True
 
 
@@ -145,6 +185,7 @@ class AdvanceCard(Card):
 
     @classmethod
     def action(cls, player, _):
+        print(f"the card is {cls.__name__}")
         player.advance(**cls.kwarg)
 
 
@@ -186,6 +227,7 @@ class BuildingAndLoanMaturesCard(Card):
 
     @classmethod
     def action(self, player, _):
+        print(f"{self.__class__}: the bank pays {player} 150")
         Bank.pay(player, 150)
 
 
@@ -195,18 +237,25 @@ class SpeedingCard(Card):
 
     @classmethod
     def action(cls, player, _):
+        print(f"{cls.__name__}: {player} pays 15 to Bank")
         player.pay(Bank, 15)
 
 
 class RepairPropertyCard(Card):
     text = {
         "français": "Vous faites des réparations sur toutes vos propriétés: Versez M25"
-        " pour chaque maison M100 pour Chque hôtel que vous possédez"
+        " pour chaque maison M100 pour Chaque hôtel que vous possédez"
     }
 
     @classmethod
     def action(cls, player, _):
-
+        num_houses, num_hotels = 0, 0
+        for property in player.buildable_properties:
+            num_houses += property.buildings["house"]
+            num_hotels += property.buildings["hotel"]
+        total_owed = sum([num_houses * 25, num_hotels * 100])
+        print(f"{player} pays the bank {total_owed} for {cls.__name__}")
+        player.pay(Bank, total_owed)
 
 
 class Deck:
@@ -247,8 +296,6 @@ def shuffle_decks():
 
 
 def buy_decision(property: "Property", player: "Player"):
-    if property.cost > player.assets:
-        print(f"{player} doesn't have enough to buy {property}.")
     return Game.games[0].buy_decision_algorithm(property, player)
 
 
@@ -269,8 +316,13 @@ class Property(Space):
 
     def __repr__(self):
         if hasattr(self, "_name"):
-            return self._name
+            return self._name[LANGUAGE]
         return str(self.__class__)
+
+    @classmethod
+    def reset(cls):
+        for property in cls.instances:
+            property.owner = None
 
     @classmethod
     def get_num_of_type(cls, type):
@@ -295,10 +347,16 @@ class Property(Space):
         if not self.owner:
             buy = buy_decision(self, player)
             if buy:
+                print(f"{player} will buy {self}")
                 return player.buy(self)
-        if self.mortgaged:
+            print(f"{player} decided not to buy {self}")
             return
-        return player.pay(self.owner, self.calculate_rent(last_roll))
+        if self.owner == player or self.mortgaged:
+            print(f"{player} landed on his own property, {self}")
+            return
+        rent = self.calculate_rent(last_roll)
+        print(f"{player} pays {self.owner} ${rent} after landing on it.")
+        player.pay(self.owner, rent)
 
     def calculate_rent(self, _):
         if not self.owner:
@@ -320,7 +378,7 @@ class Utility(Property):
         super().calculate_rent(last_roll)
         if not last_roll:
             return 10 * Player.roll_the_dice()[0]
-        return self.rent[self.owner.owns_x_of_type(self)](last_roll)
+        return self.rent[self.owner.owns_x_of_type(self.type)](last_roll)
 
 
 class Railroad(Property):
@@ -332,7 +390,7 @@ class Railroad(Property):
 
     def calculate_rent(self, _):
         super().calculate_rent(_)
-        owns_x_of_type = self.owner.owns_x_of_type(self)
+        owns_x_of_type = self.owner.owns_x_of_type(self.type)
         if not owns_x_of_type:
             return 0
         return self.rent[owns_x_of_type]
@@ -359,7 +417,7 @@ class BuildableProperty(Property):
         self.unmortgage_cost = unmortgage_cost
         self.buildings = {"house": 0, "hotel": 0}
 
-    def buy_buildings(self, building_type, quantity=None):
+    def buy_building(self, building_type):
         """
         TODO: Each property within a group must be no more than one house level away from all other
          properties in that group. For example, if you own the Orange group, you can’t put a
@@ -369,17 +427,15 @@ class BuildableProperty(Property):
         """
         if not self.owner.owns_all_type(self.type):
             raise CantBuyBuildings
-        quantity = quantity or 1
 
         if building_type == "hotel" and self.buildings["house"] != 4:
             raise NotEnough
-        elif building_type == "house" and (self.buildings["house"] + quantity) > 4:
+        elif building_type == "house" and self.buildings["house"] == 4:
             raise TooMany
 
-        total_buildings = quantity * self.num_of_type
-        cost = self.house_and_hotel_cost * total_buildings
+        cost = self.house_and_hotel_cost
         self.owner.check_funds(cost)
-        Bank.get_buildings(building_type, total_buildings)
+        Bank.get_building(building_type)
         self.owner.pay(Bank, cost)
 
         for property_ in self.properties_of_type:
@@ -387,12 +443,14 @@ class BuildableProperty(Property):
                 property_.buildings["house"] = 0
                 property_.buildings["hotel"] = 1
             else:
-                property_.buildings["house"] += quantity
+                property_.buildings["house"] += 1
 
     def sell_buildings(self, building_type, quantity):
         if not self.buildings[building_type]:
             raise NotEnough
         if quantity % self.num_of_type:
+            # TODO: this isn't right
+            #  https://www.quora.com/When-can-a-player-place-a-house-in-monopoly
             raise MustBeEqualAmounts
 
     def mortgage(self, player: "Player"):
@@ -407,8 +465,12 @@ class BuildableProperty(Property):
 
     def calculate_rent(self, _):
         super().calculate_rent(_)
-        if self.buildings:
-            key = self.buildings
+        if self.buildings["house"] or self.buildings["hotel"]:
+            buildings = self.buildings
+            if buildings["house"]:
+                key = buildings["house"]
+            else:
+                key = "hotel"
         elif self.owner.owns_all_type(self.type):
             key = "monopoly"
         else:
@@ -441,7 +503,7 @@ class Board:
         IncomeTax,
         Railroad(_name={"français": "Union des Chemins de Fer Privés"}),
         BuildableProperty(
-            _name={"deutsche": "Aarau Rathausplatz"},
+            _name={"français": "Aarau Rathausplatz"},
             cost=100,
             color="light blue",
             rent={0: 6, "monopoly": 12, 1: 30, 2: 90, 3: 270, 4: 400, "hotel": 550},
@@ -478,7 +540,7 @@ class Board:
             mortgage_cost=70,
             unmortgage_cost=77,
         ),
-        Utility(_name="Usines Électriques"),
+        Utility(_name={"français": "Usines Électriques"}),
         BuildableProperty(
             _name={"français": "Soleure Hauptgasse"},
             cost=140,
@@ -489,7 +551,7 @@ class Board:
             unmortgage_cost=77,
         ),
         BuildableProperty(
-            _name={"italian": "Lugano Via Nassa"},
+            _name={"français": "Lugano Via Nassa"},
             cost=160,
             color="pink",
             rent={0: 12, "monopoly": 24, 1: 60, 2: 180, 3: 500, 4: 700, "hotel": 900},
@@ -562,7 +624,7 @@ class Board:
             mortgage_cost=120,
             unmortgage_cost=132,
         ),
-        Railroad(_name="Tramways Interurbains"),
+        Railroad(_name={"français": "Tramways Interurbains"}),
         BuildableProperty(
             _name={"français": "Lucerne Weggisgasse"},
             cost=260,
@@ -597,7 +659,7 @@ class Board:
             mortgage_cost=130,
             unmortgage_cost=143,
         ),
-        Utility(_name="Usines Hydrauliques"),
+        Utility(_name={"français": "Usines Hydrauliques"}),
         BuildableProperty(
             _name={"français": "Lausanne Rue de Bourg"},
             cost=280,
@@ -668,7 +730,7 @@ class Board:
             mortgage_cost=160,
             unmortgage_cost=176,
         ),
-        Railroad(_name="Association des Télépheriques"),
+        Railroad(_name={"français": "Association des Télépheriques"}),
         Chance,
         BuildableProperty(
             _name={"français": "Lausanne Place St. François"},
@@ -726,36 +788,35 @@ def get_space_index(name):
 
 
 class EconomicActor:
-    def __repr__(self):
-        return f"<{self.name} money=${self.money}>"
+    pass
 
 
 class Bank(EconomicActor):
-    name = "Bank"
-    money = 20_580
-    NUM_HOUSES = 32
-    NUM_HOTELS = 12
+    money = ALL_MONEY
+    NUM_HOUSES = NUM_HOUSES
+    NUM_HOTELS = NUM_HOTELS
+
+    @classmethod
+    def reset(cls):
+        cls.money = ALL_MONEY
+        cls.NUM_HOUSES = NUM_HOUSES
+        cls.NUM_HOTELS = NUM_HOTELS
 
     @classmethod
     def pay(cls, actor: "EconomicActor", amount: int):
         if isinstance(actor, str):
             actor = eval(actor)
-        if amount > cls.money:
-            raise NotEnough
         cls.money -= amount
         actor.money += amount
 
     @classmethod
-    def get_buildings(cls, type_, quantity=None):
+    def get_building(cls, type_):
         cls.check_building_type(type_)
-        to_check = cls.get_building_store(type_)
-        if type_ == "hotel":
-            quantity = 1
-
-        if to_check < quantity:
+        store = cls.get_building_store(type_)
+        if not store:
             raise NotEnough(f"Not enough {type_}s!")
         else:
-            to_check -= quantity
+            store -= 1
 
     @classmethod
     def put_building(cls, type_, quantity):
@@ -800,6 +861,60 @@ class GetOutOfJailDecision(Decision):
         pass
 
 
+def get_property_with_least_number_of_houses(properties):
+    return sorted(properties, key=lambda prop: prop.buildings["house"], reverse=True)[0]
+
+
+def get_property_with_no_hotels(properties):
+    return sorted(properties, key=lambda prop: prop.buildings["hotel"])[0]
+
+
+class Monopoly:
+    def __init__(self, property_: "BuildableProperty"):
+        self.properties = Property.instances_by_type()[property_.type]
+        self.num_properties = len(self.properties)
+        self.max_num_houses = 4 * self.num_properties
+        self.max_num_hotels = self.num_properties
+
+    def __repr__(self):
+        return f"<Monopoly type={self.properties[0].type}"
+
+    @property
+    def num_houses(self):
+        return sum(property.buildings["house"] for property in self.properties)
+
+    @property
+    def num_hotels(self):
+        return sum(property.buildings["hotel"] for property in self.properties)
+
+    @property
+    def next_building(self) -> Tuple[Optional[str], Optional["BuildableProperty"]]:
+        num_houses, num_hotels, max_num_houses, max_num_hotels = (
+            self.num_houses,
+            self.num_hotels,
+            self.max_num_houses,
+            self.max_num_hotels,
+        )
+        first_prop = self.properties[0]
+
+        if not num_houses and not num_hotels:
+            return "house", first_prop
+
+        elif num_hotels == max_num_hotels:
+            return None, None
+
+        elif num_houses < max_num_houses:
+            if not num_hotels:
+                return (
+                    "house",
+                    get_property_with_least_number_of_houses(self.properties),
+                )
+            else:
+                return "hotel", get_property_with_no_hotels(self.properties)
+        elif num_houses == max_num_houses:
+            return "hotel", first_prop
+
+
 class Player(EconomicActor):
     in_jail = False
     bankrupt = False
@@ -807,17 +922,20 @@ class Player(EconomicActor):
     go_again = False
     current_space_index = get_space_index("Go")
     money = 0
+    passed_go_times = 0
+    monopolies = []
 
-    def __init__(self, name):
-        self.name = name
+    def __str__(self):
+        return self.name
+
+    def __init__(self):
+        self.name = choice([str(i) for i in range(10_000)])
         Bank.pay(self, 1_500)
 
     def pay(self, actor: Type["EconomicActor"], amount: int):
         if isinstance(actor, str):
             actor = eval(actor)
-        print(actor, amount, self.money)
         self.check_funds(amount)
-        print(f"{self} is paying {actor} ${amount}")
         self.money -= amount
         actor.money += amount
 
@@ -829,16 +947,46 @@ class Player(EconomicActor):
         try:
             self.pay(from_, cost or property_.cost)
         except NotEnough:
-            print(f"{self.name} does not have enough to buy {property_._name}")
             return
         property_.owner = self
-        print(f"{self.name} bought {property_._name}")
-        sleep(0.2)
+
+        if property_.__class__.__name__ == "BuildableProperty" and self.owns_all_type(
+            property_.type
+        ):
+            monopoly = Monopoly(property_)
+            self.monopolies.append(monopoly)
+
+    def buy_buildings_if_possible(self):
+        if self.monopolies:
+            print(f"{self} has {self.monopolies}")
+        else:
+            print(f"{self} has no monopolies.")
+        for monopoly in self.monopolies:
+            while True:
+                next_building_type, property_ = monopoly.next_building
+                if not next_building_type:
+                    break
+                print("next_building_type:", next_building_type, "property_:", property_)
+                if not self.can_afford(property_.house_and_hotel_cost):
+                    print("can't afford")
+                    break
+                try:
+                    property_.buy_building(next_building_type)
+                except NotEnough:
+                    print("can't afford")
+                    break
+                print("bought a building")
 
     def take_a_turn(self):
         if self.in_jail:
-            return GetOutOfJailDecision(self)
+            print(f"{self} is in jail")
+            decision = GetOutOfJailDecision(self)
+            print(decision)
+            return decision
+        # TODO: you can buy buildings from jail! Fix this
+        self.buy_buildings_if_possible()
         num_spaces, doubles = self.roll_the_dice()
+        print(f'{self} rolled', str(num_spaces))
         if doubles:
             self.go_again = True
         else:
@@ -850,10 +998,12 @@ class Player(EconomicActor):
         properties_of_this_type = self.properties_by_type.get(type_)
         if properties_of_this_type is None:
             return 0
+        if properties_of_this_type is None:
+            return 0
         return len(properties_of_this_type)
 
     def owns_all_type(self, type_):
-        return self.owns_x_of_type(type_) == Property.get_num_of_type(type)
+        return self.owns_x_of_type(type_) == Property.get_num_of_type(type_)
 
     @property
     def properties_by_type(self):
@@ -884,6 +1034,12 @@ class Player(EconomicActor):
         #  then iterate through those instances to see which ones have an owner equal to `self`
         return [p for p in Property.instances if p.owner == self]
 
+    @property
+    def buildable_properties(self) -> List[BuildableProperty]:
+        return [
+            p for p in self.properties if p.__class__.__name__ == "BuildableProperty"
+        ]
+
     def advance(
         self,
         num_spaces=None,
@@ -907,10 +1063,15 @@ class Player(EconomicActor):
 
         if pass_go and new_space_index >= Board.NUM_SPACES - 1:
             self.money += 200
+            print(f"{self} passed go and collected 200")
+            self.passed_go_times += 1
             new_space_index = new_space_index - Board.NUM_SPACES
         elif pass_go and self.current_space_index > new_space_index:
             self.money += 200
+            print(f"{self} passed go and collected 200")
+            self.passed_go_times += 1
 
+        print("new_space_index", str(new_space_index))
         self.current_space_index = new_space_index
 
         if just_rolled:
@@ -923,55 +1084,69 @@ class Player(EconomicActor):
         except NotEnough:
             # TODO: is this always right?
             # TODO: eventually make deals and mortgage prtoperties to avoid bankruptcy
-            print(f"{self.name} went bankrupt!")
             self.bankrupt = True
+            print(f"{self} just went bankrupt!")
 
     def do_action_of_current_space(self, last_roll=None):
         space = Board.spaces[self.current_space_index]
+        print(f"space is {space}")
         space.action(self, last_roll)
 
     def go_to_jail(self):
         self.in_jail = True
         self.current_space_index = get_space_index("Jail")
 
+    def can_afford(self, cost):
+        return self.money >= cost
+
 
 class Game:
     games = []
     rounds = 0
 
-    def __init__(self, *player_names, buy_decision_algorithm=None):
-        def return_true(_, __):
-            return True
-
-        self.buy_decision_algorithm = buy_decision_algorithm or return_true
+    def __init__(self, num_players, buy_decision_algorithm, slow_down=False):
+        self.slow_down = slow_down
+        Bank.reset()
+        shuffle_decks()
+        Property.reset()
+        self.buy_decision_algorithm = buy_decision_algorithm()
+        # TODO: make this nicer
+        if self.games:
+            del self.games[0]
         self.games.append(self)
-        if len(player_names) > 8:
+        if num_players < 2:
+            raise NotEnoughPlayers
+        if num_players > 8:
             raise TooManyPlayers
-        self._players = [Player(player_name) for player_name in player_names]
+        self._players = [Player() for _ in range(num_players)]
         self.players = cycle(self._players)
         # TODO: roll to see who goes first, then order the players accordingly
-        shuffle_decks()
-        self.next()
+        self.start()
 
     @property
     def active_players(self):
         return [player for player in self._players if not player.bankrupt]
 
-    def next(self):
-        while len(self.active_players) > 1:
+    def start(self):
+        while len(self.active_players) > 1 and self.rounds < MAX_ROUNDS:
             current_player = next(self.players)
             if not current_player.bankrupt:
+                if self.slow_down:
+                    sleep(3)
+                print()
+                print()
                 current_player.take_a_turn()
-            while current_player.go_again:
+            while current_player.go_again and not current_player.bankrupt:
+                if self.slow_down:
+                    sleep(3)
+                print()
+                print()
                 current_player.take_a_turn()
             self.rounds += 1
-            if self.rounds > 500:
-                break
-        self.end()
+
+    def get_rounds_played_per_player(self):
+        return self.rounds / len(self._players)
 
     def end(self):
-        print(self.active_players[0], "is the winner!")
-        print(f"It took {self.rounds} rounds.")
-
-
-game = Game("Bot", "Ro", "Francis", buy_decision_algorithm=None)
+        for player in self._players:
+            del player
